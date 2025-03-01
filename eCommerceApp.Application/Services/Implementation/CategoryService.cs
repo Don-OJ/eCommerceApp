@@ -21,6 +21,7 @@ namespace eCommerceApp.Application.Services.Implementation
         public async Task<ServiceResponse> DeleteAsync(Guid id)
         {
             int result = await productInterFace.DeleteAsync(id);
+            if (result == 0) return new ServiceResponse(false, "Category NOT Deleted!");
 
             return result > 0 ? new ServiceResponse(true, "Category Deleted!") :
                 new ServiceResponse(false, "Category NOT Deleted!");
