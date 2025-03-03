@@ -2,10 +2,12 @@
 using eCommerceApp.Domain.Entities;
 using eCommerceApp.Domain.Entities.Identity;
 using eCommerceApp.Domain.Interface;
+using eCommerceApp.Domain.Interface.IdentityAuthentication;
 using eCommerceApp.Infrastructure.Data;
 using eCommerceApp.Infrastructure.Middleware.Exception;
 using eCommerceApp.Infrastructure.Repository;
-using eCommerceApp.Infrastructure.Repository.Services;
+using eCommerceApp.Infrastructure.Repository.IdentityAuthentication;
+using eCommerceApp.Infrastructure.Services;
 using EntityFramework.Exceptions.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -23,40 +25,47 @@ namespace eCommerceApp.Infrastructure.DependencyInjection
         public static IServiceCollection AddInfrastructureService
             (this IServiceCollection services, IConfiguration config)
         {
-            // register services in DI container
+            // Register the database context with SQL Server and exception processor
             string connectionString = "DevConnection";
             services.AddDbContext<AppDbContext>(option =>
             option.UseSqlServer(config.GetConnectionString(connectionString),
             sqlOptions =>
-            { // Ensure this is the ccorrect assembly
+            {
+                // Ensure this is the correct assembly for migrations
                 sqlOptions.MigrationsAssembly(typeof(ServiceContainer).Assembly.FullName);
-                sqlOptions.EnableRetryOnFailure(); // enable automatic retry for transient failures.
+                // Enable automatic retry for transient failures
+                sqlOptions.EnableRetryOnFailure();
             }).UseExceptionProcessor(),
             ServiceLifetime.Scoped);
 
+            // Register generic repositories for Product and Category entities
             services.AddScoped<IGeneric<Product>, GenericRepository<Product>>();
             services.AddScoped<IGeneric<Category>, GenericRepository<Category>>();
 
+            // Register logging service
             services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdapter<>));
 
-            services.AddDefaultIdentity<AppUser>(options => 
+            // Configure identity options and add default identity services
+            services.AddDefaultIdentity<AppUser>(options =>
             {
                 options.SignIn.RequireConfirmedEmail = true;
-                options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;  
+                options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequiredUniqueChars = 2;
+                // Uncomment to enforce unique email and account lockout settings
                 //options.User.RequireUniqueEmail = true;
                 //options.Lockout.MaxFailedAccessAttempts = 3;
                 //options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
             })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>();
-            
-            services.AddAuthentication(options => 
+
+            // Configure JWT authentication
+            services.AddAuthentication(options =>
             {
                 // Set the default scheme for authentication
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -64,7 +73,7 @@ namespace eCommerceApp.Infrastructure.DependencyInjection
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 // Set the default scheme for challenge operations
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options => 
+            }).AddJwtBearer(options =>
             {
                 options.SaveToken = true;
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
@@ -90,10 +99,15 @@ namespace eCommerceApp.Infrastructure.DependencyInjection
                 };
             });
 
+            // Register user, role, and token management services
+            services.AddScoped<IUserManagement, UserManagement>();
+            services.AddScoped<IRoleManagement, RoleManagement>();
+            services.AddScoped<ITokenManagement, TokenManagement>();
+
             return services;
         }
 
-        // register the middleware in DI container
+        // Register the middleware in DI container
         public static IApplicationBuilder UseInfrastructureService(this IApplicationBuilder app)
         {
             app.UseMiddleware<ExceptionHandlingMiddleware>();

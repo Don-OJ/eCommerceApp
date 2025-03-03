@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace eCommerceApp.Infrastructure.Repository.Services
+namespace eCommerceApp.Infrastructure.Services
 {
     public class SerilogLoggerAdapter<T>(ILogger<T> logger) : IAppLogger<T>
     {
