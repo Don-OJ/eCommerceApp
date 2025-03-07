@@ -11,7 +11,8 @@ namespace eCommerceApp.Infrastructure.Repository.IdentityAuthentication
     {
         public async Task<bool> CreateUser(AppUser user) // Method to create a new user
         {
-            if (user != null) // Check if user is not null
+            var _user = await GetUserByEmail(user.Email!);
+            if (_user != null) // Check if user is not null
                 return false; // Return false if user is not null
 
             return (await userManager.CreateAsync(user!, user!.PasswordHash!)).Succeeded; // Create user and return the result

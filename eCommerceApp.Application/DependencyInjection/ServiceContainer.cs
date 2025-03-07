@@ -7,6 +7,8 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using eCommerceApp.Application.DTO.Identity;
 using eCommerceApp.Application.Validations;
+using eCommerceApp.Application.Services.Implementation.IdentityAuthentication;
+using eCommerceApp.Application.Services.Interface.Authentication;
 
 namespace eCommerceApp.Application.DependencyInjection
 {
@@ -21,7 +23,10 @@ namespace eCommerceApp.Application.DependencyInjection
             services.AddFluentValidationAutoValidation(); // Adding FluentValidation automatic validation
             services.AddValidatorsFromAssemblyContaining<CreateUserValidator>(); // Registering validators from the assembly containing CreateUserValidator
 
-            services.AddScoped<IValidationService, ValidationService>();
+            services.AddScoped<IValidationService, ValidationService>(); // Registering the validation service with scoped lifetime
+
+            services.AddScoped<IAuthenticationService, AuthenticationService>(); // Registering the authentication service with scoped lifetime
+
             return services; // Returning the service collection
         }
     }
