@@ -85,7 +85,7 @@ namespace eCommerceApp.Application.Services.Implementation.IdentityAuthenticatio
 
             // Add refresh token to the user
             int addRefreshTokenResult = await tokenManagement.AddRefreshToken(_user.Id, refreshToken);
-            return addRefreshTokenResult <= 0 ? new LoginResponse { Message = "Login failed : Error occured in login." } : new LoginResponse { Success=true, Token = jwtToken, RefreshToken = refreshToken, Message = "Login successful." };
+            return addRefreshTokenResult <= 0 ? new LoginResponse { Message = "Login failed : Error occured in login." } : new LoginResponse { Success = true, Token = jwtToken, RefreshToken = refreshToken, Message = "Login successful." };
         }
 
         // Method to revive a token using a refresh token
@@ -107,7 +107,7 @@ namespace eCommerceApp.Application.Services.Implementation.IdentityAuthenticatio
             // Update the refresh token for the user
             await tokenManagement.UpdateRefreshToken(userId, newRefreshToken);
 
-            return new LoginResponse { Token = newJwtToken, RefreshToken = newRefreshToken, Message = "Token revived successfully." };
+            return new LoginResponse { Success = true, Token = newJwtToken, RefreshToken = newRefreshToken, Message = "Token revived successfully." };
         }
     }
 }

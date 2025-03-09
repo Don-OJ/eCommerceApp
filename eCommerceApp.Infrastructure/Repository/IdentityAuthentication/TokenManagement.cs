@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -51,7 +52,8 @@ namespace eCommerceApp.Infrastructure.Repository.IdentityAuthentication
             {
                 rng.GetBytes(randomBytes); // Filling the byte array with random bytes
             }
-            return Convert.ToBase64String(randomBytes); // Converting byte array to a base64 string and returning it
+            string token = Convert.ToBase64String(randomBytes);
+            return WebUtility.UrlEncode(token);
         }
 
         // Method to get user ID by refresh token
