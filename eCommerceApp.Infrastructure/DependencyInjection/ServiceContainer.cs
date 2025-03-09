@@ -1,11 +1,15 @@
-﻿using eCommerceApp.Application.Services.Interface.Logging;
+﻿using eCommerceApp.Application.Services.Interface.Cart;
+using eCommerceApp.Application.Services.Interface.Logging;
 using eCommerceApp.Domain.Entities;
+using eCommerceApp.Domain.Entities.Cart;
 using eCommerceApp.Domain.Entities.Identity;
 using eCommerceApp.Domain.Interface;
+using eCommerceApp.Domain.Interface.Cart;
 using eCommerceApp.Domain.Interface.IdentityAuthentication;
 using eCommerceApp.Infrastructure.Data;
 using eCommerceApp.Infrastructure.Middleware.Exception;
 using eCommerceApp.Infrastructure.Repository;
+using eCommerceApp.Infrastructure.Repository.Cart;
 using eCommerceApp.Infrastructure.Repository.IdentityAuthentication;
 using eCommerceApp.Infrastructure.Services;
 using EntityFramework.Exceptions.SqlServer;
@@ -103,6 +107,9 @@ namespace eCommerceApp.Infrastructure.DependencyInjection
             services.AddScoped<IUserManagement, UserManagement>();
             services.AddScoped<IRoleManagement, RoleManagement>();
             services.AddScoped<ITokenManagement, TokenManagement>();
+            services.AddScoped<IPaymentMethod, PaymentMethodRepository>(); // register payment method service
+            services.AddScoped<IPaymentService, StripePaymentService>(); // register payment service
+
 
             return services;
         }
