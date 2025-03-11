@@ -28,7 +28,6 @@ namespace eCommerceApp.Application.Services.Implementation
 
             return result > 0 ? new ServiceResponse(true, "Category Deleted!") :
                 new ServiceResponse(false, "Category NOT Deleted!");
-
         }
 
         public async Task<IEnumerable<GetCategory>> GetAllAsync()
