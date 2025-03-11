@@ -33,6 +33,9 @@ namespace eCommerceApp.Application.Mapping
 
             // Mapping configuration for retrieving payment method details
             CreateMap<PaymentMethod, GetPaymentMethod>();
+
+            // mapping for create achive to get archive
+            CreateMap<CreateArchive, Archive>();
         }
     }
 }
