@@ -36,6 +36,8 @@ namespace eCommerceApp.Application.Mapping
 
             // mapping for create achive to get archive
             CreateMap<CreateArchive, Archive>();
+
+            CreateMap<UpdateCategory, Category>();
         }
     }
 }

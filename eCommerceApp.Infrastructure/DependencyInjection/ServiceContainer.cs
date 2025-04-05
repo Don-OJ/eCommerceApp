@@ -61,7 +61,7 @@ namespace eCommerceApp.Infrastructure.DependencyInjection
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
                 options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequiredUniqueChars = 2;
+                options.Password.RequiredUniqueChars = 1;
                 // Uncomment to enforce unique email and account lockout settings
                 //options.User.RequireUniqueEmail = true;
                 //options.Lockout.MaxFailedAccessAttempts = 3;
