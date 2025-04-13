@@ -43,7 +43,7 @@ namespace eCommerceApp.Host.Controllers
             var result = await categoryService.DeleteAsync(Id);
             return result.Succcess ? Ok(result) : BadRequest(result);
         }
-        [HttpDelete("products-by-category/{categoryId}")]
+        [HttpGet("products-by-category/{categoryId}")]
         public async Task<IActionResult> GetProductsByCategory(Guid categoryId)
         {
             var result = await categoryService.GetProductsByCategory(categoryId);

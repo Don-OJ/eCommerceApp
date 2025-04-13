@@ -9,6 +9,7 @@ using eCommerceApp.Application.DTO.Identity;
 using eCommerceApp.Application.Validations;
 using eCommerceApp.Application.Services.Implementation.IdentityAuthentication;
 using eCommerceApp.Application.Services.Interface.Authentication;
+using eCommerceApp.Application.Services.Interface.Cart;
 
 namespace eCommerceApp.Application.DependencyInjection
 {
@@ -26,6 +27,10 @@ namespace eCommerceApp.Application.DependencyInjection
             services.AddScoped<IValidationService, ValidationService>(); // Registering the validation service with scoped lifetime
 
             services.AddScoped<IAuthenticationService, AuthenticationService>(); // Registering the authentication service with scoped lifetime
+
+            services.AddScoped<ICartService, ICartService>(); // Registering the Cart service.
+
+            services.AddScoped<IPaymentMethodService, IPaymentMethodService>(); // registeting the payment service.
 
             return services; // Returning the service collection
         }
