@@ -6,7 +6,7 @@ namespace eCommerceApp.Application.DTO.Cart
     {
         // Identifier for the user associated with the archive entry
         [Required]
-        public Guid UserId { get; set; }
+        public string? UserId { get; set; }
 
         // Identifier for the product associated with the archive entry
         [Required]
