@@ -42,8 +42,8 @@ namespace eCommerceApp.Infrastructure.Services
                     PaymentMethodTypes = new List<string> { "card" }, // Specify payment method types
                     LineItems = lineItems, // Set the line items
                     Mode = "payment", // Set the mode to payment
-                    SuccessUrl = "https://localhost:7169/payment-success", // URL to redirect to on successful payment
-                    CancelUrl = "https://localhost:7169/payment-cancel" // URL to redirect to on canceled payment
+                    SuccessUrl = "https://localhost:7004/payment-success", // URL to redirect to on successful payment
+                    CancelUrl = "https://localhost:7004/payment-cancel" // URL to redirect to on canceled payment
                 };
 
                 // Create a new session service
