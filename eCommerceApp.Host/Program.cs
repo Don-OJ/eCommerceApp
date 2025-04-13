@@ -1,6 +1,8 @@
 using eCommerceApp.Application.DependencyInjection;
 using eCommerceApp.Infrastructure.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
@@ -13,6 +15,8 @@ builder.Host.UseSerilog();
 
 Log.Logger.Information("App is being built..........");
 
+builder.Services.AddControllers().AddJsonOptions( 
+    option => option.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 // Add services to the container.
 builder.Services.AddInfrastructureService(builder.Configuration);
 builder.Services.AddApplicationService();
@@ -26,7 +30,7 @@ builder.Services.AddCors(builder =>
     {
         policy.AllowAnyHeader()
             .AllowAnyMethod()
-            .WithOrigins("https://localhost:44319")
+            .WithOrigins("https://localhost:7004")
             .AllowCredentials();
     });
 });
