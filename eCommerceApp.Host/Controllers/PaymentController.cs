@@ -10,7 +10,7 @@ namespace eCommerceApp.Host.Controllers
     public class PaymentController(IPaymentMethodService paymentMethodService) : ControllerBase
     {
         // Endpoint to retrieve all available payment methods
-        [HttpGet("payment-methods")]
+        [HttpGet("methods")]
         public async Task<ActionResult<IEnumerable<GetPaymentMethod>>> GetPaymentMethods()
         {
             // Fetch payment methods from the service
