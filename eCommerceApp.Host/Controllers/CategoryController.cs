@@ -1,5 +1,6 @@
 ﻿using eCommerceApp.Application.DTO.Category;
 using eCommerceApp.Application.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace eCommerceApp.Host.Controllers
     public class CategoryController(ICategoryService categoryService) : ControllerBase
     {
         [HttpPost("add")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Add(CreateCategory category)
         {
             if (!ModelState.IsValid)
@@ -30,6 +32,7 @@ namespace eCommerceApp.Host.Controllers
             return data != null ? Ok(data) : NotFound();
         }
         [HttpPut("update")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(UpdateCategory category)
         {
             if (!ModelState.IsValid)
@@ -38,6 +41,7 @@ namespace eCommerceApp.Host.Controllers
             return result.Succcess ? Ok(result) : BadRequest(result);
         }
         [HttpDelete("delete/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid Id)
         {
             var result = await categoryService.DeleteAsync(Id);

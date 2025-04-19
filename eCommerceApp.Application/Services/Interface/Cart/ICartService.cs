@@ -19,5 +19,6 @@ namespace eCommerceApp.Application.Services.Interface.Cart
         /// <param name="userId">The unique identifier of the user performing the checkout.</param>
         /// <returns>A service response indicating the result of the operation.</returns>
         Task<ServiceResponse> CheckOut(CheckOut checkout);
+        Task<IEnumerable<GetArchive>> GetArchives();
     }
 }
