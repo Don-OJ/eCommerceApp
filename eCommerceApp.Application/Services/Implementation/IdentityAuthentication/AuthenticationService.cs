@@ -7,6 +7,7 @@ using eCommerceApp.Application.Validations;
 using eCommerceApp.Domain.Entities.Identity;
 using eCommerceApp.Domain.Interface.IdentityAuthentication;
 using FluentValidation;
+using System.Net;
 
 namespace eCommerceApp.Application.Services.Implementation.IdentityAuthentication
 {
@@ -83,30 +84,68 @@ namespace eCommerceApp.Application.Services.Implementation.IdentityAuthenticatio
             string jwtToken = tokenManagement.GenerateToken(claims);
             string refreshToken = tokenManagement.GetRefreshToken();
 
-            // Add refresh token to the user
+            // --- FIX: Remove existing tokens for this user FIRST ---
+            await tokenManagement.RemoveRefreshTokensByUserIdAsync(_user.Id);
+            // -------------------------------------------------------
+
+            // --- FIX: ALWAYS Add the new refresh token ---
             int addRefreshTokenResult = await tokenManagement.AddRefreshToken(_user.Id, refreshToken);
-            return addRefreshTokenResult <= 0 ? new LoginResponse { Message = "Login failed : Error occured in login." } : new LoginResponse { Success = true, Token = jwtToken, RefreshToken = refreshToken, Message = "Login successful." };
+            // ---------------------------------------------
+
+            // Check if the ADD operation failed
+            return addRefreshTokenResult <= 0
+                ? new LoginResponse { Message = "Login failed : Error occured saving token." }
+                : new LoginResponse { Success = true, Token = jwtToken, RefreshToken = refreshToken, Message = "Login successful." };
+
+            // Add refresh token to the user
+            //int addRefreshTokenResult = await tokenManagement.AddRefreshToken(_user.Id, refreshToken);
+            //return addRefreshTokenResult <= 0 ? new LoginResponse { Message = "Login failed : Error occured in login." } : new LoginResponse { Success = true, Token = jwtToken, RefreshToken = refreshToken, Message = "Login successful." };
         }
 
         // Method to revive a token using a refresh token
+        // remove the used token and add the new one, instead of trying to "update" based on userId.
         public async Task<LoginResponse> ReviveToken(string refreshToken)
         {
+            // --- FIX: Decode the incoming token ---
+            // Use UrlDecode to reverse the extra layer of encoding.
+            var decodedRefreshToken = WebUtility.UrlDecode(refreshToken);
+
             // Validate the refresh token
-            bool validTokenResult = await tokenManagement.ValidateRefreshToken(refreshToken);
+            // Validate the specific refresh token provided
+            bool validTokenResult = await tokenManagement.ValidateRefreshToken(decodedRefreshToken);
             if (!validTokenResult) return new LoginResponse { Message = "Token revival failed : Invalid Refresh Token." };
 
             // Retrieve user ID by refresh token
-            string userId = await tokenManagement.GetUserIdByRefreshToken(refreshToken);
+            // Retrieve user ID associated with this specific token
+            string userId = await tokenManagement.GetUserIdByRefreshToken(decodedRefreshToken);
+            if (string.IsNullOrEmpty(userId)) // Check if userId was actually found
+            {
+                logger.LogWarning("ReviveToken: User ID not found for decoded token: " + $"{decodedRefreshToken}");
+                return new LoginResponse { Message = "Token revival failed : User not found for token." };
+            }
+
             // Retrieve the user by ID
             AppUser? user = await userManagement.GetUserById(userId);
+            if (user == null) // Check if user still exists
+            {
+                logger.LogWarning("ReviveToken: User account not found for User ID " + $"{userId}");
+                return new LoginResponse { Message = "Token revival failed : User account not found." };
+            }
+
             // Retrieve user claims
             var claims = await userManagement.GetUserClaims(user!.Email!);
+
             // Generate new JWT token and refresh token
             string newJwtToken = tokenManagement.GenerateToken(claims);
             string newRefreshToken = tokenManagement.GetRefreshToken();
-            // Update the refresh token for the user
-            await tokenManagement.UpdateRefreshToken(userId, newRefreshToken);
 
+            // --- FIX: Remove the OLD used token ---
+            await tokenManagement.RemoveRefreshTokenAsync(decodedRefreshToken); // Use the specific token value
+
+            // --- FIX: Add the NEW refresh token for the user ---
+            await tokenManagement.AddRefreshToken(userId, newRefreshToken); // AddRefreshToken should handle potential errors internally or return success/failure
+
+            // Assuming AddRefreshToken was successful if no exception was thrown
             return new LoginResponse { Success = true, Token = newJwtToken, RefreshToken = newRefreshToken, Message = "Token revived successfully." };
         }
     }

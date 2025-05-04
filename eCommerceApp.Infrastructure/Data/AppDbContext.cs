@@ -59,7 +59,7 @@ namespace eCommerceApp.Infrastructure.Data
                 {
                     Id = Guid.NewGuid().ToString(),
                     Name = "User",
-                    NormalizedName = "NAME"
+                    NormalizedName = "USER"
                 });
         }
     }

@@ -11,5 +11,9 @@ namespace eCommerceApp.Domain.Interface.IdentityAuthentication
         Task<int> AddRefreshToken(string userId, string refreshToken); // Method to add a refresh token for a user
         Task<int> UpdateRefreshToken(string userId, string refreshToken);// Method to update a refresh token for a user
         string GenerateToken(List<Claim> claims); // Method to generate a token based on a list of claims
+
+        // You need a way to remove tokens based on the user ID
+        Task<int> RemoveRefreshTokensByUserIdAsync(string userId); // Add this
+        Task<int> RemoveRefreshTokenAsync(string refreshToken); // Add this for ReviveToken fix
     }
 }

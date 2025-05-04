@@ -29,12 +29,12 @@ namespace eCommerceApp.Infrastructure.Repository.IdentityAuthentication
         // Method to generate a JWT token
         public string GenerateToken(List<Claim> claims)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!)); // Getting the security key
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Key"]!)); // Getting the security key
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); // Creating signing credentials
             var expiration = DateTime.UtcNow.AddHours(2); // Setting token expiration time
             var token = new JwtSecurityToken(
-                issuer: config["Jwt:Issuer"], // Setting token issuer
-                audience: config["Jwt:Audience"], // Setting token audience
+                issuer: config["JWT:Issuer"], // Setting token issuer
+                audience: config["JWT:Audience"], // Setting token audience
                 claims: claims, // Adding claims to the token
                 expires: expiration, // Setting token expiration
                 signingCredentials: cred // Adding signing credentials
@@ -86,7 +86,36 @@ namespace eCommerceApp.Infrastructure.Repository.IdentityAuthentication
             if (jwtToken != null)
                 return jwtToken.Claims.ToList(); // Returning the claims if token is valid
             else
-                return new List<Claim>(); // Returning an empty list if token is invalid
+                return []; // Returning an empty list if token is invalid
+        }
+
+        public async Task<int> RemoveRefreshTokensByUserIdAsync(string userId)
+        {
+            // Find all tokens associated with the userId
+            var tokensToRemove = await context.RefreshToken // Or your DbSet name
+                                             .Where(rt => rt.UserId == userId)
+                                             .ToListAsync();
+
+            if (tokensToRemove.Any())
+            {
+                context.RefreshToken.RemoveRange(tokensToRemove);
+                return await context.SaveChangesAsync(); // Returns the number of rows affected
+            }
+            return 0; // No tokens found to remove
+        }
+
+        // Also implement RemoveRefreshTokenAsync needed for ReviveToken
+        public async Task<int> RemoveRefreshTokenAsync(string refreshToken)
+        {
+            var tokenToRemove = await context.RefreshToken
+                                     .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+            if (tokenToRemove != null)
+            {
+                context.RefreshToken.Remove(tokenToRemove);
+                return await context.SaveChangesAsync();
+            }
+            return 0;
         }
     }
 }
